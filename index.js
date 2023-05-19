@@ -26,9 +26,30 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const toysCollection = client.db('toysDB').collection('toys');
+
+
+     // Creating index on two fields
+     const indexKeys = { ToyName: 1 }; // Replace field1 and field2 with your actual field names
+     const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
+
+     const result = await toysCollection.createIndex(indexKeys, indexOptions);
+    console.log(result);
+
+    app.get("/toySearchByName/:text", async (req, res) => {
+      const searchText = req.params.text;
+      const result = await toysCollection
+        .find({
+          $or: [
+            { ToyName: { $regex: searchText, $options: "i" } }
+          
+          ],
+        })
+        .toArray();
+      res.send(result);
+    });
 
 
 
@@ -70,6 +91,16 @@ async function run() {
       const result = await toysCollection.insertOne(toy);
       res.send(result);
   })
+
+  app.delete('/toys/:id', async(req, res) => {
+    const id = req.params.id;
+    console.log('Please delete' , id);
+    const query = {_id: new ObjectId(id) }
+    const result = await toysCollection.deleteOne(query);
+    res.send(result)
+  })
+
+
 
 
   app.get('/toys/details/:id', async(req, res) => {
