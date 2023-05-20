@@ -107,30 +107,57 @@ async function run() {
     res.send(result)
   })
 
+
+  
   app.put('/toysUpdate/:id', async(req, res) => {
     const id = req.params.id;
       const body = req.body;
       console.log(id, body);
      
       const filter = {_id: new ObjectId(id)}
-      const options = {upsert: true}
       const updateDoc = {
-          $set: {
-            ToyName: body.ToyName,
-            SubCategory: body.SubCategory,
-            Price: body.Price,
-            AvailableQuantity: body.AvailableQuantity,
-            Pictureurl: body.Pictureurl,
-            Details: body.Details,
-          }
-      }
-
-
-      const result = await toysCollection.updateOne(filter, updateDoc, options );
-      res.send(result);
+            $set: {
+              ToyName: body.ToyName,
+              SubCategory: body.SubCategory,
+              Price: body.Price,
+              AvailableQuantity: body.AvailableQuantity,
+              Pictureurl: body.Pictureurl,
+              Details: body.Details,
+            },
+          };
+          const result = await toysCollection.updateOne(filter, updateDoc);
+          res.send(result);
 
 
   })
+
+
+
+
+  // app.put('/toysUpdate/:id', async(req, res) => {
+  //   const id = req.params.id;
+  //     const body = req.body;
+  //     console.log(id, body);
+     
+  //     const filter = {_id: new ObjectId(id)}
+  //     const options = {upsert: true}
+  //     const updateDoc = {
+  //         $set: {
+  //           ToyName: body.ToyName,
+  //           SubCategory: body.SubCategory,
+  //           Price: body.Price,
+  //           AvailableQuantity: body.AvailableQuantity,
+  //           Pictureurl: body.Pictureurl,
+  //           Details: body.Details,
+  //         }
+  //     }
+
+
+  //     const result = await toysCollection.updateOne(filter, updateDoc, options );
+  //     res.send(result);
+
+
+  // })
 
 
 
