@@ -1,7 +1,7 @@
 const express = require('express')
+require('dotenv').config();
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config();
 const app = express()
 const port = process.env.PORT || 5000
 
@@ -100,6 +100,38 @@ async function run() {
     res.send(result)
   })
 
+  app.get('/toysUpdate/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id) }
+    const result = await toysCollection.findOne(query);
+    res.send(result)
+  })
+
+  app.put('/toysUpdate/:id', async(req, res) => {
+    const id = req.params.id;
+      const body = req.body;
+      console.log(id, body);
+     
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert: true}
+      const updateDoc = {
+          $set: {
+            ToyName: body.ToyName,
+            SubCategory: body.SubCategory,
+            Price: body.Price,
+            AvailableQuantity: body.AvailableQuantity,
+            Pictureurl: body.Pictureurl,
+            Details: body.Details,
+          }
+      }
+
+
+      const result = await toysCollection.updateOne(filter, updateDoc, options );
+      res.send(result);
+
+
+  })
+
 
 
 
@@ -111,9 +143,29 @@ async function run() {
   })
 
 
+  // app.put("/updateToy/:id", async (req, res) => {
+  //   const id = req.params.id;
+  //   const body = req.body;
+  //   console.log(body);
+  //   const filter = { _id: new ObjectId(id) };
+  //   const updateDoc = {
+  //     $set: {
+  //       ToyName: body.ToyName,
+  //       SubCategory: body.SubCategory,
+  //       Price: body.Price,
+  //       AvailableQuantity: body.AvailableQuantity,
+  //       Pictureurl: body.Pictureurl,
+  //       Details: body.Details,
+  //     },
+  //   };
+  //   const result = await toysCollection.updateOne(filter, updateDoc);
+  //   res.send(result);
+  // });
+
+
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
