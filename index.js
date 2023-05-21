@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+  // client.connect();
 
     const toysCollection = client.db('toysDB').collection('toys');
 
@@ -35,8 +35,11 @@ async function run() {
      const indexKeys = { ToyName: 1 }; // Replace field1 and field2 with your actual field names
      const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
 
-     const result = await toysCollection.createIndex(indexKeys, indexOptions);
-    console.log(result);
+    //  const result = await toysCollection.createIndex(indexKeys, indexOptions);
+    // console.log(result);
+
+
+    // search operation 
 
     app.get("/toySearchByName/:text", async (req, res) => {
       const searchText = req.params.text;
@@ -59,20 +62,31 @@ async function run() {
       if(req.query?.email){
         query = {email: req.query.email}
       }
-      const result = await toysCollection.find(query).toArray();
+      const result = await toysCollection.find(query).limit(20).sort({createdAt: -1}).toArray();
       res.send(result)
     })
+
+
+    app.post('/toys', async(req, res) => {
+      const toy =req.body;
+      toy.createdAt = new Date();
+      console.log('new toy', toy);
+      const result = await toysCollection.insertOne(toy);
+      res.send(result);
+  })
+
 
 
     app.get('/toys/:text', async(req, res) =>{
       console.log(req.params.text)
       if(req.params.text == "regular" || req.params.text == "sports" || req.params.text == "police" || req.params.text == "truck"){
         //  const cursor =toysCollection.find({SubCategory: req.params.text})
-      const result = await toysCollection.find({SubCategory: req.params.text}).toArray();
+      const result = await toysCollection.find({SubCategory: req.params.text}).sort({createdAt: -1}).toArray();
      return res.send(result);
       }else {
         // const cursor =toysCollection.find({})
-        const result = await toysCollection.find({}).toArray();
+        const result = await toysCollection.find({}).sort({createdAt: -1}).toArray();
+
         res.send(result);
       }
      
@@ -85,12 +99,8 @@ async function run() {
     // })
 
 
-    app.post('/toys', async(req, res) => {
-      const toy =req.body;
-      console.log('new toy', toy);
-      const result = await toysCollection.insertOne(toy);
-      res.send(result);
-  })
+ 
+  // delete operation
 
   app.delete('/toys/:id', async(req, res) => {
     const id = req.params.id;
@@ -107,7 +117,7 @@ async function run() {
     res.send(result)
   })
 
-
+// update operation
   
   app.put('/toysUpdate/:id', async(req, res) => {
     const id = req.params.id;
